@@ -27,7 +27,7 @@ While this repo is private, you need GitHub access to the organization.
 gh ssh add --public-key ~/.ssh/id_ed25519.pub       # existing public key
 
 gh ssh create                                       # encrypted key in ~/.ssh
-gh ssh create --provider op --account my.1password.com --vault Personal
+gh ssh create --provider op --op-account my.1password.com --op-vault Personal
 
 gh ssh status
 gh ssh status --public-key ~/.ssh/id_ed25519.pub
@@ -37,7 +37,7 @@ gh ssh status --public-key ~/.ssh/id_ed25519.pub
 `~/.ssh`. It refuses to replace an existing key. `--path` changes the default
 `~/.ssh/id_ed25519_github`; `--title` sets the title of both GitHub keys.
 `--yes` skips the confirmation but **not** the passphrase prompt. With `op`,
-`--item` changes the item title (default `GitHub SSH Key`). Avoid creating a
+`--op-item` changes the item title (default `GitHub SSH Key`). Avoid creating a
 second item with the same title in the same vault. The `op` CLI may prompt for
 Touch ID; no credentials are accepted as command-line arguments.
 
