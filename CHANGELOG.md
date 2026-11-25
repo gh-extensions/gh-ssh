@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/gh-extensions/gh-ssh/compare/v0.2.0...v0.2.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* **ssh:** report missing GitHub key scopes without partial output ([f89e576](https://github.com/gh-extensions/gh-ssh/commit/f89e5764ee5f2fc58866c8c3d5ea962886e0f0f1))
+
 ## [0.2.0](https://github.com/gh-extensions/gh-ssh/compare/v0.1.0...v0.2.0) (2026-11-25)
 
 
