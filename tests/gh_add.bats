@@ -1,13 +1,13 @@
 #!/usr/bin/env bats
 load test_helper
 
-@test 'add registers both key types and prints only the public key' {
+@test 'add registers both key types without printing project-specific output' {
   run "$EXT" add --public-key "$MOCK_PUB" --title test
   [ "$status" -eq 0 ]
   [[ "$output" == *'Registered authentication key'* ]]
   [[ "$output" == *'Registered signing key'* ]]
-  [[ "$output" == *'[ssh]'* ]]
-  [[ "$output" == *'publicKey = "ssh-ed25519 '* ]]
+  [[ "$output" != *'[ssh]'* ]]
+  [[ "$output" != *"$(<"$MOCK_PUB")"* ]]
   [ "$(wc -l < "$MOCK_LOG")" -eq 2 ]
 }
 

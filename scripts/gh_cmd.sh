@@ -76,14 +76,3 @@ _cmd_add_key() {
 		fi
 	done
 }
-
-_cmd_snippet() {
-	local key=$1 account=$2 vault=$3
-	printf '\n# Public key only; paste into your identity file if desired:\n'
-	printf '[ssh]\npublicKey = %s\n' "$(jq -n --arg value "$key" '$value')"
-	if [[ -n "$account" ]]; then
-		printf '\n[op]\naccount = %s\nvault = %s\n' \
-			"$(jq -n --arg value "$account" '$value')" \
-			"$(jq -n --arg value "$vault" '$value')"
-	fi
-}

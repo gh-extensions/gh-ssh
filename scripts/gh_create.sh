@@ -101,5 +101,5 @@ _gh_create() {
 	esac
 	key=$(_cmd_public_key "$file") || return 1
 	_cmd_add_key "$file" "$title" "$key"
-	_cmd_snippet "$key" "$op_account" "$op_vault"
+	printf '\nPublic key:\n%s\n' "$key"
 }

@@ -21,5 +21,4 @@ _gh_add() {
 	[[ -n "$file" ]] || { _cmd_fail 'add requires --public-key PATH'; return 1; }
 	key=$(_cmd_public_key "$file") || return 1
 	_cmd_add_key "$file" "$title" "$key"
-	_cmd_snippet "$key" '' ''
 }

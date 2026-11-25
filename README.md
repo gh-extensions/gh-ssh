@@ -5,9 +5,9 @@
 [![CI](https://github.com/gh-extensions/gh-ssh/actions/workflows/ci.yml/badge.svg)](https://github.com/gh-extensions/gh-ssh/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-`gh ssh` creates or accepts a public key, registers it for both GitHub SSH
-access and commit signing, and prints an optional identity-file snippet.
-Private keys are never sent to GitHub or printed by the extension.
+`gh ssh` creates or accepts a public key and registers it for both GitHub SSH
+access and commit signing. `create` prints the plain public key; `add` only
+reports registration results. Private keys are never sent to GitHub or printed.
 
 ## Requirements
 
@@ -37,11 +37,8 @@ The flake's dev shell and package include these tools, but not the optional `op`
 ## Installation
 
 ```bash
-gh extension install gh-extensions/gh-ssh
-```
-
-This repository is private for now; installation requires access to the org.
-There is no tagged release yet, so installation follows `main`.
+gh extension install gh-extensions/gh-ssh --pin v0.2.1  # latest released version
+gh extension install gh-extensions/gh-ssh               # follows main
 
 **Nix:** the flake exposes a package with its runtime tools on `PATH`. With
 Home Manager, add it to `programs.gh.extensions`:
@@ -75,7 +72,9 @@ gh ssh create --provider op --op-account my.1password.com --op-vault Personal
 ```
 
 The file provider defaults to `~/.ssh/id_ed25519_github`; `--path` changes it.
-`ssh-keygen` prompts for a passphrase and the extension refuses an empty one.
+After registration, `create` prints the plain public key, whether the key was
+created in a file or in 1Password. `ssh-keygen` prompts for a passphrase and
+the extension refuses an empty one.
 Neither provider replaces an existing key or 1Password item. `--yes` skips the
 Gum confirmation, **not** the passphrase or 1Password unlock prompt.
 
@@ -95,17 +94,9 @@ gh ssh add --public-key ~/.ssh/id_ed25519.pub
 
 Only the **public** `.pub` file is read. If the key is already registered for
 authentication or signing, that registration is skipped. If one registration
-fails, rerun `add` with the same public key to complete the other.
-
-`create` and `add` print a public-key-only TOML snippet for an identity file:
-
-```toml
-[ssh]
-publicKey = "ssh-ed25519 AAAA..."
-```
-
-The 1Password provider also prints `[op]` with its account and vault. Nothing
-is written to your identity file automatically. Never add a private key to it.
+fails, rerun `add` with the same public key to complete the other. `add`
+does not print the key: you already have the `.pub` file. Neither command
+writes a project-specific configuration file.
 
 ### Status
 

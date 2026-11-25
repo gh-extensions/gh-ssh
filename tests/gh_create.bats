@@ -4,8 +4,8 @@ load test_helper
 @test 'interactive op provider uses the active account and selected vault' {
   run "$EXT" create --provider op
   [ "$status" -eq 0 ]
-  [[ "$output" == *'account = "example.1password.com"'* ]]
-  [[ "$output" == *'vault = "Personal"'* ]]
+  [[ "$output" == *"$(<"$MOCK_PUB")"* ]]
+  [[ "$output" != *'[op]'* ]]
   [[ "$(<"$MOCK_GUM_LOG")" == *'example.1password.com / Personal'* ]]
   [ "$(wc -l < "$MOCK_LOG")" -eq 3 ]
 }
@@ -25,11 +25,11 @@ load test_helper
   [ ! -e "$MOCK_LOG" ]
 }
 
-@test 'op provider creates an item and prints identity metadata without private material' {
+@test 'op provider prints the plain public key, not identity metadata' {
   run "$EXT" create --provider op --op-account example.1password.com --op-vault Personal --yes
   [ "$status" -eq 0 ]
-  [[ "$output" == *'[op]'* ]]
-  [[ "$output" == *'account = "example.1password.com"'* ]]
+  [[ "$output" == *"$(<"$MOCK_PUB")"* ]]
+  [[ "$output" != *'[op]'* ]]
   [[ "$output" != *'item created'* ]]
   [ "$(wc -l < "$MOCK_LOG")" -eq 3 ]
 }

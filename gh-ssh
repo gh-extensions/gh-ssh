@@ -44,7 +44,7 @@ create: generate a new passphrase-protected ~/.ssh key (default), or generate
 add:    register an existing public key; does not access its private key.
 status: list your GitHub SSH keys, or check whether a public key is registered.
 
-create prints a public-key-only TOML snippet for identity files. The op provider
+create prints the public key only, never the private key. The op provider
 uses the active 1Password account and prompts for a vault when omitted. With
 --yes, both --op-account and --op-vault are required. Organization SSO
 authorization, when required, must be completed on GitHub afterward.
