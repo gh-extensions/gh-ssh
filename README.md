@@ -111,7 +111,15 @@ gh ssh status --public-key ~/.ssh/id_ed25519.pub  # check both registrations
 ```
 
 `status --public-key` returns a nonzero exit code unless the key is present for
-both authentication and signing.
+both authentication and signing. If GitHub reports a missing permission, grant
+both scopes to your existing `gh` login (the extension does not do this for you):
+
+```bash
+gh auth refresh -h github.com -s admin:public_key,admin:ssh_signing_key
+```
+
+A failed API request never displays its JSON error as a key or prints a partial
+list. The command reports which scope may be missing instead.
 
 ## Configuration and security
 

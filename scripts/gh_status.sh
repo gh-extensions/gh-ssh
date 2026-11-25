@@ -7,7 +7,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/gh_cmd.sh"
 
 _gh_status() {
-	local file='' key auth signing
+	local file='' key auth signing auth_keys signing_keys
 	while (($#)); do
 		case $1 in
 		--public-key)
@@ -18,10 +18,12 @@ _gh_status() {
 		esac
 	done
 	if [[ -z "$file" ]]; then
+		auth_keys=$(_cmd_fetch_keys user/keys admin:public_key) || return 1
+		signing_keys=$(_cmd_fetch_keys user/ssh_signing_keys admin:ssh_signing_key) || return 1
 		printf 'Authentication keys:\n'
-		gh api user/keys --paginate --jq '.[] | "  \(.title) (\(.id))"'
+		jq -r '.[] | "  \(.title) (\(.id))"' <<< "$auth_keys"
 		printf 'Signing keys:\n'
-		gh api user/ssh_signing_keys --paginate --jq '.[] | "  \(.title) (\(.id))"'
+		jq -r '.[] | "  \(.title) (\(.id))"' <<< "$signing_keys"
 		return
 	fi
 	key=$(_cmd_public_key "$file") || return 1

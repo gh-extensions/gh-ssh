@@ -7,7 +7,11 @@ setup() {
   cat > "$BATS_TEST_TMPDIR/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 if [[ $1 == api ]]; then
-  if [[ ${MOCK_API_FAIL:-} == yes ]]; then exit 1; fi
+  if [[ ${MOCK_API_FAIL:-} == yes || ${MOCK_API_FAIL:-} == "$2" ]]; then
+    printf '{"message":"Not Found","status":"404"}\n'
+    printf 'gh: Not Found (HTTP 404)\n' >&2
+    exit 1
+  fi
   if [[ ${MOCK_REGISTERED:-} == yes ]]; then
     jq -n --arg key "$(<"$MOCK_PUB")" '[{key:$key, title:"existing", id:1}]'
     if [[ ${MOCK_PAGES:-} == yes ]]; then printf '[]\n'; fi

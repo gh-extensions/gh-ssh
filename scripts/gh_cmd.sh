@@ -13,13 +13,31 @@ _cmd_require() {
 	command -v "$1" >/dev/null 2>&1 || _cmd_fail "missing $1 (required for this command)"
 }
 
-# Check all GitHub API pages before deciding whether a key needs registration.
+# Fetch all API pages, but never expose an error response as a list of keys.
+# On missing scopes, tell the user how to grant access without changing gh's login.
+_cmd_fetch_keys() {
+	local endpoint=$1 scope=$2 response
+	if ! response=$(gh api "$endpoint" --paginate); then
+		_cmd_fail "could not list $endpoint; if access is missing, run: gh auth refresh -h ${GH_HOST:-github.com} -s $scope"
+		return 2
+	fi
+	if ! printf '%s\n' "$response" | jq -sc 'if length > 0 and all(.[]; type == "array") then add else error("expected key lists") end'; then
+		_cmd_fail "invalid response from $endpoint"
+		return 2
+	fi
+}
+
 # Returns 0 if present, 1 if absent, 2 on API or JSON errors.
 _cmd_registered() {
-	local endpoint=$1 key=$2 response
-	response=$(gh api "$endpoint" --paginate) || return 2
-	jq -ser --arg key "$key" \
-		'any(.[][]; (.key | split(" ")[:2]) == ($key | split(" ")[:2]))' \
+	local endpoint=$1 key=$2 scope response
+	case $endpoint in
+	user/keys) scope=admin:public_key ;;
+	user/ssh_signing_keys) scope=admin:ssh_signing_key ;;
+	*) _cmd_fail "unknown key endpoint: $endpoint"; return 2 ;;
+	esac
+	response=$(_cmd_fetch_keys "$endpoint" "$scope") || return 2
+	jq -er --arg key "$key" \
+		'any(.[]; (.key | split(" ")[:2]) == ($key | split(" ")[:2]))' \
 		<<< "$response" >/dev/null || {
 			local result=$?
 			((result == 1)) && return 1
