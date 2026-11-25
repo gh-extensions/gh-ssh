@@ -41,7 +41,7 @@ USAGE
   gh ssh add --public-key PATH [--title TITLE]
   gh ssh status [--public-key PATH]
   gh ssh status --provider op [--op-account ACCOUNT] [--op-vault VAULT]
-                [--op-item TITLE] [--expected-public-key PATH]
+                [--op-item TITLE] [--public-key PATH]
                 [--review-days N] [--rotate-days N]
 
 create: generate a new passphrase-protected ~/.ssh key (default), or generate

@@ -60,7 +60,7 @@ gh ssh create --provider op [--op-account ACCOUNT] [--op-vault VAULT] [--op-item
 gh ssh add --public-key PATH [--title TITLE]
 gh ssh status [--public-key PATH]
 gh ssh status --provider op [--op-account ACCOUNT] [--op-vault VAULT]
-              [--op-item TITLE] [--expected-public-key PATH]
+              [--op-item TITLE] [--public-key PATH]
               [--review-days N] [--rotate-days N]
 ```
 
@@ -114,15 +114,15 @@ GitHub registrations without accessing its private key:
 
 ```bash
 gh ssh status --provider op --op-account my.1password.com --op-vault Personal
-gh ssh status --provider op --expected-public-key ~/.ssh/expected.pub
+gh ssh status --provider op --public-key ~/.ssh/expected.pub
 ```
 
 The `op` provider uses the active signed-in account and lets you choose a vault
 when flags are omitted. It reads the public-key field with `op read` and the
 creation date from `op item list --long` (metadata only). If that list has no
 creation date, age is reported as unavailable; it never retrieves the full
-item JSON, which may contain private-key material. An expected `.pub` file is
-compared by key type and bytes, ignoring its comment. Status suggests reviewing
+item JSON, which may contain private-key material. With `--provider op`, `--public-key` checks that a `.pub` file matches the
+1Password key by type and bytes, ignoring its comment. Status suggests reviewing
 after 365 days and considering rotation after 730 days; change these with
 `--review-days` and `--rotate-days`. These suggestions do not rotate keys.
 

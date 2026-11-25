@@ -40,7 +40,7 @@ load test_helper
 @test '1Password status checks age, GitHub registration and an expected key' {
   export MOCK_OP_EXISTS=yes MOCK_REGISTERED=yes
   run "$EXT" status --provider op --op-account example.1password.com \
-    --op-vault Personal --expected-public-key "$MOCK_PUB"
+    --op-vault Personal --public-key "$MOCK_PUB"
   [ "$status" -eq 0 ]
   [[ "$output" == *'Created: 2023-01-01 ('* ]]
   [[ "$output" == *'consider rotating'* ]]
@@ -54,7 +54,7 @@ load test_helper
   export MOCK_OP_EXISTS=yes MOCK_REGISTERED=yes
   ssh-keygen -q -t ed25519 -N '' -f "$BATS_TEST_TMPDIR/other"
   run "$EXT" status --provider op --op-account example.1password.com \
-    --op-vault Personal --expected-public-key "$BATS_TEST_TMPDIR/other.pub"
+    --op-vault Personal --public-key "$BATS_TEST_TMPDIR/other.pub"
   [ "$status" -ne 0 ]
   [[ "$output" == *'Expected public key: DIFFERENT'* ]]
 }
@@ -77,6 +77,12 @@ load test_helper
   run "$EXT" status --provider op
   [ "$status" -eq 0 ]
   [[ "$output" == *'example.1password.com / Personal'* ]]
+}
+
+@test 'old expected-public-key flag is rejected' {
+  run "$EXT" status --provider op --expected-public-key "$MOCK_PUB"
+  [ "$status" -ne 0 ]
+  [[ "$output" == *'unknown status option'* ]]
 }
 
 @test 'status with a public key fails clearly when a scope is missing' {

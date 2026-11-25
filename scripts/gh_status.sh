@@ -87,15 +87,15 @@ _gh_key_status() {
 
 _gh_status() {
 	local file='' provider=file op_account='' op_vault='' op_item='GitHub SSH Key'
-	local expected_file='' review_days=365 rotate_days=730 key auth_keys signing_keys
+	local review_days=365 rotate_days=730 key auth_keys signing_keys
 	while (($#)); do
 		case $1 in
-		--public-key | --provider | --op-account | --op-vault | --op-item | --expected-public-key | --review-days | --rotate-days)
+		--public-key | --provider | --op-account | --op-vault | --op-item | --review-days | --rotate-days)
 			(($# >= 2)) || { _cmd_fail "$1 requires a value"; return 1; }
 			case $1 in
 			--public-key) file=$2 ;; --provider) provider=$2 ;;
 			--op-account) op_account=$2 ;; --op-vault) op_vault=$2 ;;
-			--op-item) op_item=$2 ;; --expected-public-key) expected_file=$2 ;;
+			--op-item) op_item=$2 ;;
 			--review-days) review_days=$2 ;; --rotate-days) rotate_days=$2 ;;
 			esac
 			shift 2 ;;
@@ -105,7 +105,7 @@ _gh_status() {
 	done
 	case $provider in
 	file)
-		[[ -z "$op_account$op_vault$expected_file" && $op_item == 'GitHub SSH Key' &&
+		[[ -z "$op_account$op_vault" && $op_item == 'GitHub SSH Key' &&
 			$review_days == 365 && $rotate_days == 730 ]] || {
 			_cmd_fail '1Password status flags require --provider op'
 			return 1
@@ -123,7 +123,6 @@ _gh_status() {
 		_gh_key_status "$key"
 		;;
 	op)
-		[[ -z "$file" ]] || { _cmd_fail 'use --expected-public-key with --provider op'; return 1; }
 		[[ "$op_item" != */* ]] || { _cmd_fail 'item title must not contain /'; return 1; }
 		[[ $review_days =~ ^[0-9]+$ && $rotate_days =~ ^[0-9]+$ ]] || {
 			_cmd_fail 'review and rotation days must be non-negative integers'
@@ -138,7 +137,7 @@ _gh_status() {
 			op_vault=$(_cmd_op_vault "$op_account") || return 1
 			[[ -n "$op_vault" ]] || { _cmd_fail 'no vault selected'; return 1; }
 		fi
-		_gh_op_status "$op_account" "$op_vault" "$op_item" "$expected_file" \
+		_gh_op_status "$op_account" "$op_vault" "$op_item" "$file" \
 			"$review_days" "$rotate_days"
 		;;
 	*) _cmd_fail "unknown provider: $provider"; return 1 ;;
