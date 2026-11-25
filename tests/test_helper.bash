@@ -35,7 +35,11 @@ case "$1 $2" in
   'item list')
     if [[ ${MOCK_OP_FAIL:-} == yes ]]; then exit 1; fi
     if [[ ${MOCK_OP_EXISTS:-} == yes ]]; then
-      printf '[{"title":"GitHub SSH Key"}]\n'
+      if [[ ${MOCK_OP_NO_DATE:-} == yes ]]; then
+        printf '[{"title":"GitHub SSH Key"}]\n'
+      else
+        printf '[{"title":"GitHub SSH Key","created_at":"2023-01-01T00:00:00Z"}]\n'
+      fi
     else
       printf '[]\n'
     fi ;;

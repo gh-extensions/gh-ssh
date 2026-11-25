@@ -5,11 +5,12 @@ set -euo pipefail
 
 # shellcheck source=scripts/gh_cmd.sh
 source "$(dirname "${BASH_SOURCE[0]}")/gh_cmd.sh"
+# shellcheck source=scripts/gh_op.sh
+source "$(dirname "${BASH_SOURCE[0]}")/gh_op.sh"
 
 _gh_create() {
 	local provider=file path="$HOME/.ssh/id_ed25519_github" op_account='' op_vault=''
-	local op_item='GitHub SSH Key' title='GitHub SSH Key' yes=0 key file items account_info vaults
-	local -a account_args=() vault_names=()
+	local op_item='GitHub SSH Key' title='GitHub SSH Key' yes=0 key file items
 	while (($#)); do
 		case $1 in
 		--provider | --path | --op-account | --op-vault | --op-item | --title)
@@ -56,25 +57,9 @@ _gh_create() {
 		[[ "$op_item" != */* ]] || { _cmd_fail 'item title must not contain /'; return 1; }
 		_cmd_require op || return 1
 		_cmd_require gum || return 1
-		[[ -z "$op_account" ]] || account_args=(--account "$op_account")
-		account_info=$(op whoami "${account_args[@]}" --format json) || {
-			_cmd_fail 'could not determine the signed-in 1Password account'
-			return 1
-		}
-		op_account=$(jq -er '.url | strings | sub("^https?://"; "") | sub("/$"; "") | select(length > 0)' \
-			<<< "$account_info") || {
-			_cmd_fail '1Password did not return an account URL; pass --op-account'
-			return 1
-		}
+		op_account=$(_cmd_op_account "$op_account") || return 1
 		if [[ -z "$op_vault" ]]; then
-			vaults=$(op vault list --account "$op_account" --format json) || {
-				_cmd_fail 'could not list 1Password vaults'
-				return 1
-			}
-			mapfile -t vault_names < <(jq -r '.[] | .name | strings' <<< "$vaults")
-			((${#vault_names[@]})) || { _cmd_fail 'no vaults available'; return 1; }
-			op_vault=$(gum choose --header "Select a vault in $op_account" \
-				--select-if-one "${vault_names[@]}") || return 1
+			op_vault=$(_cmd_op_vault "$op_account") || return 1
 			[[ -n "$op_vault" ]] || { _cmd_fail 'no vault selected'; return 1; }
 		fi
 		items=$(op item list --vault "$op_vault" --account "$op_account" --format json) || {

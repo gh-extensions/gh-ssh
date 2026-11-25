@@ -59,6 +59,9 @@ gh ssh create [--provider file|op] [--path PATH] [--title TITLE] [--yes]
 gh ssh create --provider op [--op-account ACCOUNT] [--op-vault VAULT] [--op-item TITLE]
 gh ssh add --public-key PATH [--title TITLE]
 gh ssh status [--public-key PATH]
+gh ssh status --provider op [--op-account ACCOUNT] [--op-vault VAULT]
+              [--op-item TITLE] [--expected-public-key PATH]
+              [--review-days N] [--rotate-days N]
 ```
 
 ### Create
@@ -106,7 +109,24 @@ gh ssh status --public-key ~/.ssh/id_ed25519.pub  # check both registrations
 ```
 
 `status --public-key` returns a nonzero exit code unless the key is present for
-both authentication and signing. If GitHub reports a missing permission, grant
+both authentication and signing. To check a 1Password key, its age, and its
+GitHub registrations without accessing its private key:
+
+```bash
+gh ssh status --provider op --op-account my.1password.com --op-vault Personal
+gh ssh status --provider op --expected-public-key ~/.ssh/expected.pub
+```
+
+The `op` provider uses the active signed-in account and lets you choose a vault
+when flags are omitted. It reads the public-key field with `op read` and the
+creation date from `op item list --long` (metadata only). If that list has no
+creation date, age is reported as unavailable; it never retrieves the full
+item JSON, which may contain private-key material. An expected `.pub` file is
+compared by key type and bytes, ignoring its comment. Status suggests reviewing
+after 365 days and considering rotation after 730 days; change these with
+`--review-days` and `--rotate-days`. These suggestions do not rotate keys.
+
+If GitHub reports a missing permission, grant
 both scopes to your existing `gh` login (the extension does not do this for you):
 
 ```bash

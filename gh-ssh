@@ -21,6 +21,8 @@ _check_dependencies() {
 
 # shellcheck source=scripts/gh_cmd.sh
 source "$_gh_ssh_source_dir/scripts/gh_cmd.sh"
+# shellcheck source=scripts/gh_op.sh
+source "$_gh_ssh_source_dir/scripts/gh_op.sh"
 # shellcheck source=scripts/gh_create.sh
 source "$_gh_ssh_source_dir/scripts/gh_create.sh"
 # shellcheck source=scripts/gh_add.sh
@@ -38,11 +40,15 @@ USAGE
                 [--title TITLE] [--yes]
   gh ssh add --public-key PATH [--title TITLE]
   gh ssh status [--public-key PATH]
+  gh ssh status --provider op [--op-account ACCOUNT] [--op-vault VAULT]
+                [--op-item TITLE] [--expected-public-key PATH]
+                [--review-days N] [--rotate-days N]
 
 create: generate a new passphrase-protected ~/.ssh key (default), or generate
         one inside 1Password (--provider op). Never replaces an existing key.
 add:    register an existing public key; does not access its private key.
-status: list your GitHub SSH keys, or check whether a public key is registered.
+status: list GitHub keys, check a public key, or review a 1Password key's age
+        and registrations without reading its private key.
 
 create prints the public key only, never the private key. The op provider
 uses the active 1Password account and prompts for a vault when omitted. With
