@@ -59,7 +59,7 @@ Home Manager, add it to `programs.gh.extensions`:
 
 ```bash
 gh ssh create [--provider file|op] [--path PATH] [--title TITLE] [--yes]
-gh ssh create --provider op --op-account ACCOUNT --op-vault VAULT [--op-item TITLE]
+gh ssh create --provider op [--op-account ACCOUNT] [--op-vault VAULT] [--op-item TITLE]
 gh ssh add --public-key PATH [--title TITLE]
 gh ssh status [--public-key PATH]
 ```
@@ -70,6 +70,7 @@ Generate a new Ed25519 key in `~/.ssh` (default) or inside 1Password:
 
 ```bash
 gh ssh create
+gh ssh create --provider op                              # active account; choose vault
 gh ssh create --provider op --op-account my.1password.com --op-vault Personal
 ```
 
@@ -78,10 +79,13 @@ The file provider defaults to `~/.ssh/id_ed25519_github`; `--path` changes it.
 Neither provider replaces an existing key or 1Password item. `--yes` skips the
 Gum confirmation, **not** the passphrase or 1Password unlock prompt.
 
-With `--provider op`, `--op-account` and `--op-vault` are required; `--op-item`
-sets the 1Password item title (default: `GitHub SSH Key`). `--title` sets the
-GitHub key title for either provider. The extension never accepts a private
-key, passphrase, or 1Password credential as a command-line argument.
+With `--provider op`, the account defaults to the currently signed-in account
+(`op whoami`); when no vault is given, Gum lists that account's vaults for you
+to choose from. The confirmation names the resolved account and vault. For
+`--yes`, **both** `--op-account` and `--op-vault` are required so automation
+cannot silently use a different account. `--op-item` sets the 1Password item
+title (default: `GitHub SSH Key`); `--title` sets the GitHub key title. The
+extension never accepts a private key or passphrase as a command-line argument.
 
 ### Add an existing key
 

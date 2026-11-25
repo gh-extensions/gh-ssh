@@ -27,6 +27,11 @@ EOF
   cat > "$BATS_TEST_TMPDIR/bin/op" <<'EOF'
 #!/usr/bin/env bash
 case "$1 $2" in
+  'whoami --account' | 'whoami --format')
+    printf '{"url":"https://example.1password.com/"}\n' ;;
+  'vault list')
+    if [[ ${MOCK_VAULT_FAIL:-} == yes ]]; then exit 1; fi
+    printf '[{"name":"Personal"},{"name":"Shared"}]\n' ;;
   'item list')
     if [[ ${MOCK_OP_FAIL:-} == yes ]]; then exit 1; fi
     if [[ ${MOCK_OP_EXISTS:-} == yes ]]; then
@@ -41,8 +46,13 @@ esac
 EOF
   cat > "$BATS_TEST_TMPDIR/bin/gum" <<'EOF'
 #!/usr/bin/env bash
-exit 0
+case $1 in
+  choose) printf '%s\n' "${MOCK_VAULT_CHOICE:-Personal}" ;;
+  confirm) printf '%s\n' "$*" >> "$MOCK_GUM_LOG" ;;
+  *) exit 1 ;;
+esac
 EOF
+  export MOCK_GUM_LOG="$BATS_TEST_TMPDIR/confirmations"
   chmod +x "$BATS_TEST_TMPDIR/bin/"{gh,op,gum}
   export EXT="$BATS_TEST_DIRNAME/../gh-ssh"
 }

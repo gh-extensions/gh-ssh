@@ -34,7 +34,7 @@ gh ssh — register SSH authentication and signing keys with GitHub
 
 USAGE
   gh ssh create [--provider file|op] [--path PATH]
-                [--op-account ACCOUNT --op-vault VAULT --op-item TITLE]
+                [--op-account ACCOUNT] [--op-vault VAULT] [--op-item TITLE]
                 [--title TITLE] [--yes]
   gh ssh add --public-key PATH [--title TITLE]
   gh ssh status [--public-key PATH]
@@ -45,8 +45,9 @@ add:    register an existing public key; does not access its private key.
 status: list your GitHub SSH keys, or check whether a public key is registered.
 
 create prints a public-key-only TOML snippet for identity files. The op provider
-requires the 1Password CLI and an unlocked account. SSO authorization, when
-required by an organization, must be completed on GitHub afterward.
+uses the active 1Password account and prompts for a vault when omitted. With
+--yes, both --op-account and --op-vault are required. Organization SSO
+authorization, when required, must be completed on GitHub afterward.
 EOF
 }
 

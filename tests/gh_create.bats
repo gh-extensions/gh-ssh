@@ -1,6 +1,30 @@
 #!/usr/bin/env bats
 load test_helper
 
+@test 'interactive op provider uses the active account and selected vault' {
+  run "$EXT" create --provider op
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'account = "example.1password.com"'* ]]
+  [[ "$output" == *'vault = "Personal"'* ]]
+  [[ "$(<"$MOCK_GUM_LOG")" == *'example.1password.com / Personal'* ]]
+  [ "$(wc -l < "$MOCK_LOG")" -eq 3 ]
+}
+
+@test 'op provider refuses unattended account or vault inference' {
+  run "$EXT" create --provider op --yes
+  [ "$status" -ne 0 ]
+  [[ "$output" == *'requires --op-account and --op-vault'* ]]
+  [ ! -e "$MOCK_LOG" ]
+}
+
+@test 'op provider fails safely when vaults cannot be listed' {
+  export MOCK_VAULT_FAIL=yes
+  run "$EXT" create --provider op
+  [ "$status" -ne 0 ]
+  [[ "$output" == *'could not list 1Password vaults'* ]]
+  [ ! -e "$MOCK_LOG" ]
+}
+
 @test 'op provider creates an item and prints identity metadata without private material' {
   run "$EXT" create --provider op --op-account example.1password.com --op-vault Personal --yes
   [ "$status" -eq 0 ]
